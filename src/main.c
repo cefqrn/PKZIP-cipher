@@ -14,9 +14,13 @@
 int main(int argc, char *argv[]) {
     bool decoding = false;
     char *password = NULL;
+
     FILE *ifile = stdin;
     FILE *ofile = stdout;
     {  // parse arguments
+        char *ipath = NULL;
+        char *opath = NULL;
+
         int c;
         while ((c = getopt(argc, argv, "hdi:o:")) != -1) {
             switch (c) {
@@ -28,12 +32,10 @@ int main(int argc, char *argv[]) {
                 decoding = true;
                 break;
                 case 'i':
-                ifile = fopen(optarg, "r");
-                if (ifile == NULL) goto INPUT_ERROR;
+                ipath = optarg;
                 break;
                 case 'o':
-                ofile = fopen(optarg, "w");
-                if (ofile == NULL) goto OUTPUT_ERROR;
+                opath = optarg;
             }
         }
 
@@ -43,6 +45,16 @@ int main(int argc, char *argv[]) {
         }
 
         password = argv[optind];
+
+        if (ipath != NULL) {
+            ifile = fopen(ipath, "r");
+            if (ifile == NULL) goto INPUT_ERROR;
+        }
+
+        if (opath != NULL) {
+            ofile = fopen(opath, "w");
+            if (ofile == NULL) goto OUTPUT_ERROR;
+        }
     }
 
     struct cipher_keys keys = create_keys(strlen(password), password);
